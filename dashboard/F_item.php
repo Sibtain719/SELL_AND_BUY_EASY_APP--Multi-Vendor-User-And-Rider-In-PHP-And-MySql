@@ -1,0 +1,725 @@
+
+<?php
+session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CRM Admin Panel</title>
+    <!-- Favicon and touch icons -->
+    <link rel="shortcut icon" href="assets/dist/img/ico/favicon.png" type="image/x-icon">
+    <?php
+    include('HeaderNavigationLinks.php');
+    ?>
+
+  
+<script type="text/javascript" src="jq.js"></script>
+<script>
+    $(document).ready(function()
+    {
+
+        $("#btnAddClick").click(function()
+        {
+            var cimag = $("#iimage").get(0).files;
+            var name = $("#iname").val();
+            var price = $("#pname").val();
+            var quantity = $("#qname").val();
+            var status = $("#istatus").val();
+            var cat_id = $("#cid").val();
+            if(name == "")
+            {
+                    return  $("#error_name").html("Name REquired").css("color","red");
+            }
+            if(price == "")
+            {
+                    $("#error_name").hide();
+                    return  $("#error_pname").html("Price Required").css("color","red");
+            }
+            if(quantity == "")
+            {
+                    $("#error_pname").hide();
+                    return  $("#error_qname").html("Quantity Required").css("color","red");
+            }
+
+            var frm = new FormData();
+            frm.append("iname",name);
+            frm.append("pname",price);
+            frm.append("qname",quantity);
+            frm.append("status",status); 
+            frm.append("cid",cat_id);
+            frm.append("iimage",cimag[0]);
+
+            $.ajax(
+                {
+                    url:"add_item.php",
+                    data:frm,
+                    type:"POST",
+                    processData:false,
+                    contentType:false,
+                    success:function(result)
+                    {
+                        $("#tbl_rows").html(result);
+                        //$('#addtask').modal('hide');
+
+                    },
+                    error: function(error)
+                    {
+                        $("#msg").html(error);
+                    }
+                });
+        });
+
+        // UpDateRow after insert into database 
+        $("#btnchangeClick").click(function(e)
+            {
+                if(document.getElementById('chk').checked)
+                {
+                    alert("working");
+                    var frm = new FormData();
+                    var cimag = $("#item_image").get(0).files;
+                    frm.append("item_id",$('#item_id').val());
+                    frm.append("item_name",$('#item_name').val());
+                    frm.append("item_price",$('#item_price').val());
+                    frm.append("item_qty",$('#item_qty').val());
+                    frm.append("item_cid",$('#item_cid').val());
+                    frm.append("item_status",$('#item_status').val());
+                    frm.append("cimage",cimag[0]);
+                    frm.append("img_key","yes");
+                    e.preventDefault();
+                    $.ajax(
+                        {
+                            url:"update_item.php",
+                            data:frm,
+                            type:"POST",
+                            processData:false,
+                            contentType:false,
+                            success:function(result)
+                            {
+                                alert(result);
+                                    $("#tbl_rows").html(result);
+                                    $('#update').modal('hide');
+                            },
+                            error: function(error)
+                            {
+                                $("#umsg").html(error);
+                            }
+                        });
+                }
+                else{
+                 var frm = new FormData();
+                    var frm = new FormData();
+                    var cimag = $("#item_image").get(0).files;
+                    frm.append("item_id",$('#item_id').val());
+                    frm.append("item_name",$('#item_name').val());
+                    frm.append("item_price",$('#item_price').val());
+                    frm.append("item_qty",$('#item_qty').val());
+                    frm.append("item_cid",$('#item_cid').val());
+                    frm.append("item_status",$('#item_status').val());
+                    frm.append("cimage",cimag[0]);
+                    frm.append("img_key","No");
+                    e.preventDefault();
+                    $.ajax(
+                        {
+                            url:"update_item.php",
+                            data:frm,
+                            type:"POST",
+                            processData:false,
+                            contentType:false,
+                            success:function(result)
+                            {
+                                alert(result);
+                                $("#tbl_rows").html(result);
+
+                            },
+                            error: function(error)
+                            {
+                                $("#umsg").html(result);
+                            }
+                        });
+                }
+
+            });
+
+
+    });
+    function CallImagePreview(title)
+    {
+
+        document.getElementById("pre_img").src=title;
+    }
+    function Delete(title)
+    {
+
+        var IsDeleted = confirm("do you want to delete this ("+title+") Row");
+        if(IsDeleted == true)
+        {
+                var ajax = new XMLHttpRequest();
+                ajax.open("GET","delete_item.php?cid="+title,true);
+                // now event used to access response from server
+                ajax.onreadystatechange=function()
+                {
+                    $("#tbl_rows").html(ajax.responseText);
+                }
+                ajax.send();
+
+        }
+
+    }
+    function Update(title)
+    {
+        // alert(title);
+        var arr = title.split(',');
+        $('#item_id').val(arr[0]);
+        $('#item_name').val(arr[2]);
+        $('#item_price').val(arr[3]);
+        $('#item_qty').val(arr[4]);
+        $('#item_status').val(arr[6]);
+        $('#item_cid option[value='+arr[1]+']').attr('selected','selected');
+        $('#item_image').src(arr[5]);
+        $('#update').modal('show');
+
+            
+
+
+
+    }
+    //search code here
+function SearchRecord(txt)
+    {
+            var ajax = new XMLHttpRequest();
+                ajax.open("GET","search_item.php?search="+txt,true);
+                // now event used to access response from server
+                ajax.onreadystatechange=function()
+                {
+                    $("#tbl_rows").html(ajax.responseText);
+                }
+                ajax.send();
+    }
+
+
+    function CallImagePreview(title)
+    {
+
+        document.getElementById("pre_img").src=title;
+    }
+</script>
+
+
+</head>
+
+<body class="hold-transition sidebar-mini">
+    <!--preloader-->
+    <div id="preloader">
+        <div id="status"></div>
+    </div>
+    <!-- Site wrapper -->
+    <div class="wrapper">
+        <header class="main-header">
+            <a href="index-2.html" class="logo">
+                <!-- Logo -->
+                <span class="logo-mini">
+                    <img src="assets/dist/img/mini-logo.png" alt="">
+                </span>
+                <span class="logo-lg">
+                    <img src="assets/dist/img/logo.png" alt="">
+                </span>
+            </a>
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <!-- Sidebar toggle button-->
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="pe-7s-angle-left-circle"></span>
+                </a>
+                <!-- searchbar-->
+
+
+                <div class="navbar-custom-menu">
+                <?php
+                    include("profileheader.php");
+                    ?>
+                </div>
+            </nav>
+        </header>
+        <!-- =============================================== -->
+        <!-- Left side column. contains the sidebar -->
+        <!-- Left side column. contains the sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar -->
+            <div class="sidebar">
+                <!-- sidebar menu -->
+                <?php
+                include('SideNavigation.php');
+                ?>
+
+
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+        <!-- =============================================== -->
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="header-icon">
+                    <i class="fa fa-dashboard"></i>
+                </div>
+                <div class="header-title">
+                    <h1>CRM Admin Dashboard</h1>
+                    <small>Very detailed & featured admin.</small>
+                </div>
+            </section>
+            <!-- Main content -->
+
+
+            <section class="content">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <div class="panel panel-bd lobidisable">
+                            <div class="panel-heading">
+                                <div class="btn-group" id="buttonexport">
+                                    <a href="#">
+                                        <h4>Item List</h4>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <!-- Plugin content:powerpoint,txt,pdf,png,word,xl -->
+                                <div class="btn-group">
+                                    <div class="buttonexport">
+                                        <a href="#" class="btn btn-add" data-toggle="modal" data-target="#addtask"><i class="fa fa-plus"></i> Create Item</a>
+                                    </div>
+                                    <button class="btn btn-exp btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i> Export Table Data</button>
+                                    <ul class="dropdown-menu exp-drop" role="menu">
+                                        <!-- <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'json',escape:'false'});">
+                                                <img src="assets/dist/img/json.png" width="24" alt="logo"> JSON</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'json',escape:'false',ignoreColumn:'[2,3]'});">
+                                                <img src="assets/dist/img/json.png" width="24" alt="logo"> JSON (ignoreColumn)</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'json',escape:'true'});">
+                                                <img src="assets/dist/img/json.png" width="24" alt="logo"> JSON (with Escape)</a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'xml',escape:'false'});">
+                                                <img src="assets/dist/img/xml.png" width="24" alt="logo"> XML</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'sql'});">
+                                                <img src="assets/dist/img/sql.png" width="24" alt="logo"> SQL</a>
+                                        </li> -->
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'csv',escape:'false'});">
+                                                <img src="assets/dist/img/csv.png" width="24" alt="logo"> CSV</a>
+                                        </li>
+                                        <!-- <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'txt',escape:'false'});">
+                                                <img src="assets/dist/img/txt.png" width="24" alt="logo"> TXT</a>
+                                        </li> -->
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'excel',escape:'false'});">
+                                                <img src="assets/dist/img/xls.png" width="24" alt="logo"> XLS</a>
+                                        </li>
+                                        <!-- <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'doc',escape:'false'});">
+                                                <img src="assets/dist/img/word.png" width="24" alt="logo"> Word</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'powerpoint',escape:'false'});">
+                                                <img src="assets/dist/img/ppt.png" width="24" alt="logo"> PowerPoint</a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'png',escape:'false'});">
+                                                <img src="assets/dist/img/png.png" width="24" alt="logo"> PNG</a>
+                                        </li> -->
+                                        <li>
+                                            <a href="#" onclick="$('#dataTableExample1').tableExport({type:'pdf',pdfFontSize:'7',escape:'false'});">
+                                                <img src="assets/dist/img/pdf.png" width="24" alt="logo"> PDF</a>
+                                        </li>
+                                    </ul>
+                                </div>
+<!-- search -->
+<div class=".active-cyan-4  active-cyan-4 mb-4">
+  <input class="form-control" type="text" placeholder="Search here" aria-label="Search" onkeyup="SearchRecord(this.value)">
+</div>
+
+
+<br>
+
+
+<style>
+
+ .active-cyan-4  input[type=text]:focus:not([readonly]) {
+  border: 1px solid #4dd0e1;
+  box-shadow: 0 0 0 1px #4dd0e1;
+}
+
+</style>
+
+                                <!-- ./Plugin content:powerpoint,txt,pdf,png,word,xl -->
+                                <div class="table-responsive">
+                                    <table id="dataTableExample1" class="table table-bordered table-striped table-hover">
+                                        <thead>
+                                            <tr class="info">
+                                                <th>Id</th>
+                                                <th>Category Id</th>
+                                                <th>Item Name</th>
+                                                <th>Price</th>
+                                                <th>Qty</th>
+                                                <th>Image</th>
+                                                <th>Created by</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbl_rows">
+                                            <?php
+                                            include('db_connection.php');
+                                            $obUser    = $_SESSION['user'];
+                                            $createdby = $obUser[2];
+                                            $rows =  ExecuteQuery("SELECT
+
+                                                                           tbl_items.id,
+                                                                           tbl_items.category_id,
+                                                                           tbl_items.itemname,
+                                                                           tbl_items.price,
+                                                                           tbl_items.qty,
+                                                                           tbl_items.picture,
+                                                                           tbl_items.createdby,
+                                                                           tbl_items.createddate,
+                                                                           tbl_items.status
+                                                                        from tbl_items
+                                                                        where tbl_items.createdby='$createdby'
+
+
+                                                                        ");
+                                            while ($cell = mysqli_fetch_array($rows))
+                                            {
+                                                $cat = $cell[0].','.$cell[1].','.$cell[2].','.$cell[3].','.$cell[4].','.$cell[5].','.$cell[8];
+                                                echo '<tr>
+                                                                 <td>' . $cell[0] . '</td>
+                                                                 <td>' . $cell[1] . '</td>
+                                                                 <td>' . $cell[2] . '</td>
+                                                                 <td>' . $cell[3] . '</td>
+                                                                 <td>' . $cell[4] . '</td>
+                                                                 <td><img src="../item/'.$cell[5].'" class="img-circle" width="50" height="50" data-toggle="modal" data-target="#update_pre" id="btnimage" title="item/'.$cell[5].'" onClick="CallImagePreview(this.title)"></td>
+                                                                 <td>' . $cell[6] . '</td>
+                                                                 <td>' . $cell[7] . '</td>
+                                                                 <td>' . $cell[8] . '</td>
+
+                                                        <td>
+                                                            <button type="button" onClick="Update(this.title)" id="btnUpdateClick" title="'.$cat.'" data-toggle="modal" data-target="#update"  class="btn btn-add btn-xs"> <i class="fa fa-pencil"></i></button>
+
+                                                            <button type="button" id="btnDeleteClick" title="'.$cell[0].'" onClick="Delete(this.title)" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delt"><i class="fa fa-trash-o"></i> </button>
+                                                        </td>
+                                                        </tr>';
+                                            }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal1 -->
+                <div class="modal fade" id="addtask" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header modal-header-primary">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h3><i class="fa fa-plus m-r-5"></i> New Item</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form class="form-horizontal" action="add_item.php" method="post" enctype="multipart/form-data">
+                                            <fieldset>
+                                                <!-- Text input-->
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Category</label>
+                                                    <select class="form-control" id="cid" name="cid">
+                                                        <option>Select</option>
+                                                    <?php
+
+                                                
+                                            $rows =  ExecuteQuery("SELECT * FROM tbl_category where createdby='$createdby'");
+                                            while ($cell = mysqli_fetch_array($rows))
+                                            {
+                                                $cat = $cell[0].','.$cell[1];
+                                                echo '<option value="'.$cell[0].'">'.$cell[1].'</option>';
+                                            }
+                                             ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Item</label>
+                                                    <input type="text" name="iname" id="iname" class="form-control ">
+                                                    <span id="error_name"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Price</label>
+                                                    <input type="text" id="pname" name="pname" class="form-control ">
+                                                    <span id="error_pname"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Quantity</label>
+                                                    <input type="text" id="qname" name="qname" class="form-control ">
+                                                    <span id="error_qname"></span>
+                                                </div>
+
+                                                <div class="col-md-6 form-group ">
+                                                    <label class="control-label ">Image</label>
+                                                    <input type="file" name="iimage" id="iimage" placeholder="status " class="form-control ">
+                                                    <span id="error_image"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">STATUS</label>
+                                                    <select class="form-control" id="istatus">
+                                                        <option>Select</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="deactive">Deactive</option>
+                                                    </select>
+                                                    <span id="error_status"></span>
+                                                </div>
+                                                <div class="col-md-12 form-group user-form-group ">
+                                                    <div class="pull-right ">
+                                                        <button type="submit" class="btn btn-add btn-sm ">Create Item</button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer ">
+                                <button type="button " class="btn btn-danger pull-left " data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+                <!-- Modal1 -->
+                <div class="modal fade" id="update" tabindex="-1 " role="dialog">
+                    <div class="modal-dialog ">
+                        <div class="modal-content ">
+                            <div class="modal-header modal-header-primary ">
+                                <button type="button " class="close " data-dismiss="modal" aria-hidden="true">×</button>
+                                <h3><i class="fa fa-plus m-r-5 "></i> Update Items</h3>
+                            </div>
+                            <div class="modal-body ">
+                                <div class="row ">
+                                    <div class="col-md-12 ">
+                                              <form class="form-horizontal" action="update_item.php" method="post" enctype="multipart/form-data">
+                                            <fieldset>
+                                                <!-- Text input-->
+                                                   <div class="col-md-6 form-group">
+                                                    <label class="control-label" >ID</label>
+                                                    <input type="text" id="item_id" name="item_id" class="form-control "  readonly="">
+                                                    <span id="error_name"></span>
+                                                </div>
+
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Category</label>
+                                                    <select class="form-control" id="item_cid" name="item_cid">
+                                                        <option>Select</option>
+                                                    <?php
+                                            $rows =  ExecuteQuery("SELECT * FROM tbl_category where createdby='$createdby'");
+                                            while ($cell = mysqli_fetch_array($rows))
+                                            {
+                                                $cat = $cell[0].','.$cell[1];
+                                                echo '<option value="'.$cell[0].'">'.$cell[1].'</option>';
+                                            }
+
+                                                    ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Item</label>
+                                                    <input type="text" id="item_name" name="item_name" class="form-control ">
+                                                    <span id="error_name"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Price</label>
+                                                    <input type="text" id="item_price" name="item_price" class="form-control ">
+                                                    <span id="error_pname"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Quantity</label>
+                                                    <input type="text" id="item_qty" name="item_qty" class="form-control ">
+                                                    <span id="error_qname"></span>
+                                                </div>
+
+                                                <div class="col-md-6 form-group ">
+                                                    <label class="control-label ">Image</label>
+                                                    <input type="file" id="item_image" name="item_image" class="form-control ">
+                                                    <span id="error_image"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group">
+                                                    <label class="control-label">Status</label>
+                                                    <select class="form-control" id="item_status" name="item_status">
+                                                        <option>Select</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="deactive">Deactive</option>
+                                                    </select>
+                                                    <span id="error_status"></span>
+                                                </div>
+                                                <div class="col-md-6 form-group ">
+                                                    <input type="checkbox" id="chk" name="chk" class="form-control-sm"> Do you want to change Image then Tick.
+                                                </div>
+
+                                                <div class="col-md-12 form-group user-form-group ">
+                                                    <div class="pull-right ">
+                                                        <!-- <input type="button" value="Create" class="btn btn-primary" id="btnAddClick"> -->
+                                                        <!--<input type="submit" value="Update Now" id="btnchangeClick" class="btn btn-primary">-->
+                                                        <input type="submit" value="Update Now" class="btn btn-primary">
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+                <!-- delete user Modal2 -->
+                <div class="modal fade" id="delt" tabindex="-1" role="dialog">
+                    <div class="modal-dialog ">
+                        <div class="modal-content ">
+                            <div class="modal-header modal-header-primary ">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h3><i class="fa fa-user m-r-5 "></i> Delete task</h3>
+                            </div>
+                            <div class="modal-body ">
+                                <div class="row ">
+                                    <div class="col-md-12 ">
+                                        <form class="form-horizontal ">
+                                            <fieldset>
+                                                <div class="col-md-12 form-group user-form-group ">
+                                                    <label class="control-label ">Delete task</label>
+                                                    <div class="pull-right ">
+                                                        <button type="button " class="btn btn-danger btn-sm ">NO</button>
+                                                        <button type="submit " class="btn btn-success btn-sm ">YES</button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer ">
+                                <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+
+
+
+
+                  <!-- /.modal -->
+
+                  <div class="modal fade" id="update_pre" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header modal-header-primary">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h3><i class="fa fa-plus m-r-5"></i>Item Image Preview</h3>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <img src="#" id="pre_img"  width="560" height="460">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer ">
+                                <button type="button " class="btn btn-danger pull-left " data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+            </section>
+
+
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer ">
+            <strong>Copyright &copy; 2023-2024 <a href="# ">SABeasy App</a>.</strong> All rights reserved.
+        </footer>
+    </div>
+    <!-- /.wrapper -->
+    <!-- Start Core Plugins
+         =====================================================================-->
+    <!-- jQuery -->
+    <script src="assets/plugins/jQuery/jquery-1.12.4.min.js " type="text/javascript "></script>
+    <!-- jquery-ui -->
+    <script src="assets/plugins/jquery-ui-1.12.1/jquery-ui.min.js " type="text/javascript "></script>
+    <!-- Bootstrap -->
+    <script src="assets/bootstrap/js/bootstrap.min.js " type="text/javascript "></script>
+    <!-- lobipanel -->
+    <script src="assets/plugins/lobipanel/lobipanel.min.js " type="text/javascript "></script>
+    <!-- Pace js -->
+    <script src="assets/plugins/pace/pace.min.js " type="text/javascript "></script>
+    <!-- SlimScroll -->
+    <script src="assets/plugins/slimScroll/jquery.slimscroll.min.js " type="text/javascript ">
+    </script>
+    <!-- FastClick -->
+    <script src="assets/plugins/fastclick/fastclick.min.js " type="text/javascript "></script>
+    <!-- CRMadmin frame -->
+    <script src="assets/dist/js/custom.js " type="text/javascript "></script>
+    <!-- End Core Plugins
+         =====================================================================-->
+    <!-- Start Page Lavel Plugins
+         =====================================================================-->
+    <!-- ChartJs JavaScript -->
+    <script src="assets/plugins/chartJs/Chart.min.js " type="text/javascript "></script>
+    <!-- Counter js -->
+    <script src="assets/plugins/counterup/waypoints.js " type="text/javascript "></script>
+    <script src="assets/plugins/counterup/jquery.counterup.min.js " type="text/javascript "></script>
+    <!-- Monthly js -->
+    <script src="assets/plugins/monthly/monthly.js " type="text/javascript "></script>
+    <!-- End Page Lavel Plugins
+         =====================================================================-->
+    <!-- Start Theme label Script
+         =====================================================================-->
+    <!-- Dashboard js -->
+    <script src="assets/dist/js/dashboard.js " type="text/javascript "></script>
+    <!-- End Theme label Script
+         =====================================================================-->
+
+</body>
+
+
+
+</html>
